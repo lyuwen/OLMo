@@ -309,6 +309,7 @@ class ModelConfig(BaseConfig):
     """
 
     flash_attention: bool = False
+    use_flash_attention_v3: bool = False
     """
     If ``True``, use ``FlashAttention``.
     """

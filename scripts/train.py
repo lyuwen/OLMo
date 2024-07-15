@@ -43,6 +43,7 @@ from olmo.util import (
     log_extra_field,
     prepare_cli_environment,
 )
+import olmo.tblogger as logger
 
 log = logging.getLogger("train")
 
@@ -112,6 +113,9 @@ def main(cfg: TrainConfig) -> None:
             tags=cfg.wandb.tags,
             config=cfg.asdict(exclude=["wandb"]),
         )
+    log_dir = Path(cfg.save_folder) / "tf_logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    logger.init(log_dir=log_dir)
 
     barrier()
 

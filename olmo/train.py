@@ -55,6 +55,8 @@ from .torch_util import (
 )
 from .util import upload
 
+import olmo.tblogger as logger
+
 __all__ = ["SpeedMonitor", "LRMonitor", "Trainer"]
 
 log = logging.getLogger(__name__)
@@ -1024,6 +1026,8 @@ class Trainer:
             eval_metrics = self.eval()
             if wandb.run is not None:
                 wandb.log(eval_metrics, step=self.global_step)
+            if logger.writer is not None:
+                logger.log(eval_metrics, global_step=self.global_step)
 
         # Set model to 'train' mode.
         self.dist_model.train()
@@ -1039,6 +1043,8 @@ class Trainer:
             self.log_metrics_to_console("Pre-train system metrics", sys_metrics)
             if wandb.run is not None:
                 wandb.log(sys_metrics, step=0)
+            if logger.writer is not None:
+                logger.log(sys_metrics, global_step=0)
 
         # Python Profiler stuff
         if self.cfg.python_profiling:
@@ -1146,6 +1152,8 @@ class Trainer:
                         and self.global_step % self.cfg.wandb.log_interval == 0
                     ):
                         wandb.log(metrics, step=self.global_step)
+                    if logger.writer is not None:
+                        logger.log(metrics, global_step=self.global_step)
 
                     # Check if/when run should be canceled.
                     if not cancel_initiated and self.global_step % self.cfg.canceled_check_interval == 0:
@@ -1213,6 +1221,8 @@ class Trainer:
                         # Log metrics to W&B.
                         if wandb.run is not None:
                             wandb.log(eval_metrics, step=self.global_step)
+                        if logger.writer is not None:
+                            logger.log(eval_metrics, global_step=self.global_step)
 
                         # Reset speed monitor so that we don't count the time taken to run evaluations.
                         speed_monitor.reset()

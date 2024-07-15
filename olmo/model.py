@@ -459,12 +459,16 @@ class OLMoBlock(nn.Module):
 
         self.flash_attn_func = None
         if config.flash_attention:
-            try:
-                from flash_attn import flash_attn_func  # type: ignore
-
+            if config.use_flash_attention_v3:
+                from hopper.flash_attn_interface import flash_attn_func
                 self.flash_attn_func = flash_attn_func
-            except ModuleNotFoundError:
-                pass
+            else:
+                try:
+                    from flash_attn import flash_attn_func  # type: ignore
+
+                    self.flash_attn_func = flash_attn_func
+                except ModuleNotFoundError:
+                    pass
 
     def reset_parameters(self):
         if self.k_norm is not None:
